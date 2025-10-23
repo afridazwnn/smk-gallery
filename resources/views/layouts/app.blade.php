@@ -21,7 +21,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="h-16 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-9 w-9 object-contain">
+                    <img src="{{ asset('images/logo.png') }}?v={{ file_exists(public_path('images/logo.png')) ? filemtime(public_path('images/logo.png')) : '' }}" alt="Logo" class="h-9 w-9 object-contain">
                     <a href="{{ route('home') }}" class="text-lg sm:text-xl font-semibold tracking-wide">SMKN 4 BOGOR</a>
                 </div>
 

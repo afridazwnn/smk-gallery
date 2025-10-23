@@ -20,7 +20,7 @@ class GalleryController extends Controller
             ->get();
         
         // Build query for posts
-        $query = Posts::with(['kategori', 'galery.foto'])
+        $query = Posts::with(['kategori', 'galery.foto', 'galery.likes', 'galery.views'])
             ->where('status', 'published');
         
         // Apply search filter

@@ -125,6 +125,9 @@ Route::prefix('gallery/{galleryId}')->group(function () {
     // Like (requires login)
     Route::post('/like', [GalleryInteractionController::class, 'toggleLike'])->name('gallery.like');
     
+    // View (no login required)
+    Route::post('/view', [GalleryInteractionController::class, 'trackView'])->name('gallery.view');
+    
     // Share (no login required)
     Route::post('/share', [GalleryInteractionController::class, 'trackShare'])->name('gallery.share');
     

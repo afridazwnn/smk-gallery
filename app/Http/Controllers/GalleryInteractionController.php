@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GalleryLike;
 use App\Models\GalleryShare;
+use App\Models\GalleryView;
 use App\Models\Galery;
 use App\Models\Posts;
 use Illuminate\Http\Request;
@@ -78,6 +79,37 @@ class GalleryInteractionController extends Controller
     }
 
     /**
+     * Track view (no login required)
+     */
+    public function trackView(Request $request, $galleryId)
+    {
+        $ipAddress = $request->ip();
+        $userAgent = $request->userAgent();
+        
+        // Check if this IP has viewed this gallery in the last 24 hours
+        $recentView = GalleryView::where('gallery_id', $galleryId)
+            ->where('ip_address', $ipAddress)
+            ->where('viewed_at', '>', now()->subDay())
+            ->first();
+        
+        if (!$recentView) {
+            GalleryView::create([
+                'gallery_id' => $galleryId,
+                'ip_address' => $ipAddress,
+                'user_agent' => $userAgent,
+                'viewed_at' => now(),
+            ]);
+        }
+        
+        $viewsCount = GalleryView::where('gallery_id', $galleryId)->count();
+        
+        return response()->json([
+            'success' => true,
+            'views_count' => $viewsCount
+        ]);
+    }
+
+    /**
      * Track share (no login required)
      */
     public function trackShare(Request $request, $galleryId)
@@ -114,12 +146,14 @@ class GalleryInteractionController extends Controller
             $stats = [
                 'likes_count' => 0,
                 'shares_count' => 0,
+                'views_count' => 0,
                 'is_liked' => false,
             ];
 
             if ($gallery) {
                 $stats['likes_count'] = GalleryLike::where('gallery_id', $gallery->id)->count();
                 $stats['shares_count'] = GalleryShare::where('gallery_id', $gallery->id)->count();
+                $stats['views_count'] = GalleryView::where('gallery_id', $gallery->id)->count();
                 
                 if (Auth::guard('public')->check()) {
                     $stats['is_liked'] = GalleryLike::where('gallery_id', $gallery->id)

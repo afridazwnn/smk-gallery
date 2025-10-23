@@ -427,7 +427,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         @if($posts->count() > 0)
             <!-- Modern Masonry Grid -->
-            <div id="galleryGrid" class="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 lg:gap-8 space-y-6 lg:space-y-8">
+            <div id="galleryGrid" class="columns-1 md:columns-2 lg:columns-4 gap-6 lg:gap-8 space-y-6 lg:space-y-8">
                 @foreach($posts as $post)
                     <article
                         class="group break-inside-avoid mb-6 lg:mb-8"
@@ -436,7 +436,7 @@
                         data-post-json='@json($post)'
                         style="cursor: pointer;"
                     >
-                        <div class="bg-white rounded-2xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-xl border border-gray-100">
+                        <div class="bg-white rounded-2xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-xl">
                             <!-- Enhanced Image Container with Dynamic Height -->
                             <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50">
                                 @if($post->galery->count() > 0 && $post->galery->first()->foto->count() > 0)
@@ -480,9 +480,44 @@
                                     {{ Str::limit(strip_tags($post->isi), 80) }}
                                 </p>
 
-                                <!-- Meta Information -->
-                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                <!-- Meta Information with Stats in One Row -->
+                                @php
+                                    $gallery = $post->galery->first();
+                                    $viewsCount = $gallery ? $gallery->views->count() : 0;
+                                    $likesCount = $gallery ? $gallery->likes->count() : 0;
+                                    $galleryId = $gallery ? $gallery->id : null;
+                                @endphp
+                                <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
                                     <span>{{ $post->created_at->format('d M Y') }}</span>
+                                    <span class="text-gray-300">|</span>
+                                    
+                                    <!-- View Count -->
+                                    <span class="flex items-center gap-1" data-view-count="{{ $galleryId }}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        <span class="view-count-number">{{ $viewsCount >= 1000 ? number_format($viewsCount / 1000, 1) . 'k' : $viewsCount }}</span>
+                                    </span>
+                                    
+                                    <!-- Like Count with Button -->
+                                    @if($galleryId)
+                                        <button 
+                                            onclick="event.stopPropagation(); quickLike({{ $galleryId }}, this)"
+                                            class="quick-like-btn flex items-center gap-1 hover:text-red-500 transition-colors duration-200"
+                                            data-gallery-id="{{ $galleryId }}"
+                                            data-liked="false"
+                                            data-like-count="{{ $galleryId }}">
+                                            <svg class="w-3.5 h-3.5 heart-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                            </svg>
+                                            <span class="like-count-number">{{ $likesCount >= 1000 ? number_format($likesCount / 1000, 1) . 'k' : $likesCount }}</span>
+                                        </button>
+                                    @endif
+                                </div>
+                                
+                                <!-- Read More Link -->
+                                <div class="text-xs">
                                     <span class="text-blue-600 font-medium">Read More →</span>
                                 </div>
                             </div>
@@ -533,6 +568,20 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+        
+        /* Quick Like Button Styling */
+        .quick-like-btn[data-liked="true"] {
+            color: #ef4444 !important;
+        }
+        
+        .quick-like-btn[data-liked="true"] .heart-icon {
+            fill: currentColor;
+        }
+        
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
         }
         
         /* Custom Pagination Styling */
@@ -722,7 +771,7 @@
                     </div>
 
                     <!-- Photos Grid -->
-                    <div id="allPhotosGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div id="allPhotosGrid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                         <!-- Photos will be inserted here by JavaScript -->
                     </div>
                 </div>
@@ -789,7 +838,7 @@
                     if (gallery.foto && gallery.foto.length > 0) {
                         gallery.foto.forEach(photo => {
                             const thumb = document.createElement('button');
-                            thumb.className = 'flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 border-transparent hover:border-blue-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105';
+                            thumb.className = 'flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden hover:ring-2 hover:ring-blue-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105';
                             thumb.innerHTML = `
                                 <img src="{{ asset('storage/posts/') }}/${photo.file}"
                                      alt=""
@@ -803,7 +852,7 @@
 
                 // Highlight first thumbnail
                 if (galleryThumbnails.firstChild) {
-                    galleryThumbnails.firstChild.classList.add('border-blue-500');
+                    galleryThumbnails.firstChild.classList.add('ring-2', 'ring-blue-500');
                 }
             } else {
                 // No photos available
@@ -839,9 +888,9 @@
 
             // Update active thumbnail
             thumbnails.forEach(btn => {
-                btn.classList.remove('border-blue-500');
+                btn.classList.remove('ring-2', 'ring-blue-500');
             });
-            thumb.parentElement.classList.add('border-blue-500');
+            thumb.parentElement.classList.add('ring-2', 'ring-blue-500');
         }
 
         // Function to download current image
@@ -915,18 +964,17 @@
             allPhotos.forEach((photo, index) => {
                 const imageUrl = `{{ asset('storage/posts/') }}/${photo.file}`;
                 const photoCard = document.createElement('div');
-                photoCard.className = 'group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1';
+                photoCard.className = 'group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300';
                 photoCard.innerHTML = `
                     <div class="aspect-square overflow-hidden">
                         <img src="${imageUrl}" 
                              alt="${photo.judul}" 
-                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                        <p class="text-white text-sm font-medium mb-2">${photo.judul}</p>
-                        <button onclick="downloadPhoto('${imageUrl}', '${photo.file}')" 
-                                class="flex items-center justify-center px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-2">
+                        <button onclick="event.stopPropagation(); downloadPhoto('${imageUrl}', '${photo.file}')" 
+                                class="flex items-center justify-center w-full px-2 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs font-medium transition-colors duration-200">
+                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                             Download
@@ -2002,6 +2050,37 @@
 
         // Check auth on page load
         checkPublicAuth();
+        
+        // Load liked status for all quick like buttons
+        async function loadLikedStatus() {
+            if (!isPublicUserAuthenticated) return;
+            
+            const quickLikeBtns = document.querySelectorAll('.quick-like-btn');
+            
+            for (const btn of quickLikeBtns) {
+                const galleryId = btn.dataset.galleryId;
+                if (!galleryId) continue;
+                
+                try {
+                    const response = await fetch(`/gallery/${galleryId}/stats`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.stats.is_liked) {
+                        btn.dataset.liked = 'true';
+                        btn.classList.add('text-red-500');
+                        const heartIcon = btn.querySelector('.heart-icon');
+                        if (heartIcon) {
+                            heartIcon.style.fill = 'currentColor';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading liked status:', error);
+                }
+            }
+        }
+        
+        // Load liked status after auth check
+        setTimeout(loadLikedStatus, 500);
     </script>
 
     <!-- Include Gallery Detail Modal -->

@@ -40,16 +40,28 @@ function populateModal(gallery) {
     document.getElementById('modalLikeBtn').dataset.galleryId = gallery.id || '';
     document.getElementById('modalLikeBtn').dataset.liked = gallery.stats.is_liked;
     
-    // Update like and share counts
+    // Update stats counts
+    document.getElementById('modalViewsCount').textContent = gallery.stats.views_count || 0;
     document.getElementById('modalLikesCount').textContent = gallery.stats.likes_count;
-    document.getElementById('modalSharesCount').textContent = gallery.stats.shares_count;
     
     // Update like button appearance
     const likeBtn = document.getElementById('modalLikeBtn');
+    const modalHeartIcon = likeBtn.querySelector('.heart-icon');
     if (gallery.stats.is_liked) {
         likeBtn.classList.add('text-red-500');
+        if (modalHeartIcon) {
+            modalHeartIcon.style.fill = 'currentColor';
+        }
     } else {
         likeBtn.classList.remove('text-red-500');
+        if (modalHeartIcon) {
+            modalHeartIcon.style.fill = 'none';
+        }
+    }
+    
+    // Track view when modal opens
+    if (gallery.id) {
+        trackGalleryView(gallery.id);
     }
     
     // Update main image
@@ -77,14 +89,14 @@ function loadGalleryThumbnails(photos) {
         return;
     }
     
-    // Show only first 3 photos
-    const photosToShow = photos.slice(0, 3);
-    const remainingCount = photos.length - 3;
+    // Show only first 4 photos
+    const photosToShow = photos.slice(0, 4);
+    const remainingCount = photos.length - 4;
     
     grid.innerHTML = photosToShow.map(photo => `
         <img src="/storage/posts/${photo.file}" 
              alt="${photo.title || 'Gallery Image'}" 
-             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+             class="w-full aspect-square object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
              onclick="changeMainImage('/storage/posts/${photo.file}')">
     `).join('');
     
@@ -163,9 +175,37 @@ async function handleModalLike(event) {
         if (data.success) {
             btn.dataset.liked = data.liked;
             
-            // Update like count
+            // Update like count in modal
             document.getElementById('modalLikesCount').textContent = data.likes_count;
             
+            // Update like count in grid card
+            const gridLikeButton = document.querySelector(`.quick-like-btn[data-gallery-id="${galleryId}"]`);
+            if (gridLikeButton) {
+                const gridLikeCount = gridLikeButton.querySelector('.like-count-number');
+                if (gridLikeCount) {
+                    const formattedCount = data.likes_count >= 1000 
+                        ? (data.likes_count / 1000).toFixed(1) + 'k' 
+                        : data.likes_count;
+                    gridLikeCount.textContent = formattedCount;
+                }
+                
+                // Update button state in grid
+                gridLikeButton.dataset.liked = data.liked;
+                const gridHeartIcon = gridLikeButton.querySelector('.heart-icon');
+                if (data.liked) {
+                    gridLikeButton.classList.add('text-red-500');
+                    if (gridHeartIcon) {
+                        gridHeartIcon.style.fill = 'currentColor';
+                    }
+                } else {
+                    gridLikeButton.classList.remove('text-red-500');
+                    if (gridHeartIcon) {
+                        gridHeartIcon.style.fill = 'none';
+                    }
+                }
+            }
+            
+            // Update modal button appearance
             if (data.liked) {
                 btn.classList.add('text-red-500');
                 btn.querySelector('.heart-icon').style.animation = 'heartBeat 0.3s ease';
@@ -274,10 +314,23 @@ function openFullGallery() {
     const grid = document.getElementById('fullGalleryGrid');
     
     grid.innerHTML = currentGalleryData.photos.map(photo => `
-        <img src="/storage/posts/${photo.file}" 
-             alt="${photo.title || 'Gallery Image'}" 
-             class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-             onclick="openFullSizeViewer('/storage/posts/${photo.file}')">
+        <div class="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+            <div class="aspect-square overflow-hidden">
+                <img src="/storage/posts/${photo.file}" 
+                     alt="${photo.title || 'Gallery Image'}" 
+                     class="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
+                     onclick="openFullSizeViewer('/storage/posts/${photo.file}')">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-2">
+                <button onclick="event.stopPropagation(); downloadPhotoFromGallery('/storage/posts/${photo.file}', '${photo.file}')" 
+                        class="flex items-center justify-center w-full px-2 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs font-medium transition-colors duration-200">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+        </div>
     `).join('');
     
     modal.classList.remove('hidden');
@@ -316,6 +369,13 @@ function closeFullSizeViewer(event) {
 
 // Download Full Size Image
 function downloadFullSizeImage() {
+    // Check if user is logged in
+    if (!isPublicUserAuthenticated) {
+        pendingDownloadAction = () => downloadFullSizeImage();
+        showAuthModal();
+        return;
+    }
+    
     const img = document.getElementById('fullSizeImage');
     const link = document.createElement('a');
     link.href = img.src;
@@ -324,6 +384,140 @@ function downloadFullSizeImage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    showNotification('Download dimulai!', 'success');
+}
+
+// Download Photo from Gallery Modal
+function downloadPhotoFromGallery(imageUrl, filename) {
+    // Check if user is logged in
+    if (!isPublicUserAuthenticated) {
+        pendingDownloadAction = () => downloadPhotoFromGallery(imageUrl, filename);
+        showAuthModal();
+        return;
+    }
+    
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = filename || imageUrl.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showNotification('Download dimulai!', 'success');
+}
+
+// Track Gallery View (no login required)
+async function trackGalleryView(galleryId) {
+    try {
+        const response = await fetch(`/gallery/${galleryId}/view`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update view count in modal if open
+            const modalViewsCount = document.getElementById('modalViewsCount');
+            if (modalViewsCount) {
+                modalViewsCount.textContent = data.views_count;
+            }
+            
+            // Update view count in grid
+            const gridViewCount = document.querySelector(`[data-view-count="${galleryId}"] .view-count-number`);
+            if (gridViewCount) {
+                const formattedCount = data.views_count >= 1000 
+                    ? (data.views_count / 1000).toFixed(1) + 'k' 
+                    : data.views_count;
+                gridViewCount.textContent = formattedCount;
+            }
+        }
+    } catch (error) {
+        console.error('Error tracking view:', error);
+    }
+}
+
+// Quick Like from Grid (requires login)
+async function quickLike(galleryId, button) {
+    // Check if user is logged in
+    if (!isPublicUserAuthenticated) {
+        showAuthModal();
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/gallery/${galleryId}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.status === 401) {
+            showAuthModal();
+            return;
+        }
+        
+        if (data.success) {
+            // Update button state in grid
+            button.dataset.liked = data.liked;
+            const heartIcon = button.querySelector('.heart-icon');
+            
+            if (data.liked) {
+                button.classList.add('text-red-500');
+                heartIcon.style.fill = 'currentColor';
+                heartIcon.style.animation = 'heartBeat 0.3s ease';
+                setTimeout(() => {
+                    heartIcon.style.animation = '';
+                }, 300);
+            } else {
+                button.classList.remove('text-red-500');
+                heartIcon.style.fill = 'none';
+            }
+            
+            // Update like count in grid (now inside the button)
+            const gridLikeCount = button.querySelector('.like-count-number');
+            if (gridLikeCount) {
+                const formattedCount = data.likes_count >= 1000 
+                    ? (data.likes_count / 1000).toFixed(1) + 'k' 
+                    : data.likes_count;
+                gridLikeCount.textContent = formattedCount;
+            }
+            
+            // Update like count in modal if open
+            const modalLikeBtn = document.getElementById('modalLikeBtn');
+            if (modalLikeBtn && modalLikeBtn.dataset.galleryId == galleryId) {
+                // Update modal like count
+                const modalLikesCount = document.getElementById('modalLikesCount');
+                if (modalLikesCount) {
+                    modalLikesCount.textContent = data.likes_count;
+                }
+                
+                // Update modal button state
+                modalLikeBtn.dataset.liked = data.liked;
+                const modalHeartIcon = modalLikeBtn.querySelector('.heart-icon');
+                if (data.liked) {
+                    modalLikeBtn.classList.add('text-red-500');
+                    if (modalHeartIcon) {
+                        modalHeartIcon.style.fill = 'currentColor';
+                    }
+                } else {
+                    modalLikeBtn.classList.remove('text-red-500');
+                    if (modalHeartIcon) {
+                        modalHeartIcon.style.fill = 'none';
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        showNotification('Terjadi kesalahan. Silakan coba lagi.', 'error');
+    }
 }
 
 // Keyboard navigation

@@ -160,7 +160,7 @@
                         <div class="text-center py-6">
                             <i class="fas fa-image text-3xl text-blue-400 mb-3"></i>
                             <p class="text-base font-medium text-gray-700 mb-1">Klik untuk upload foto utama</p>
-                            <p class="text-xs text-gray-400 mt-1">Maksimal 5MB, format: JPG, PNG, GIF</p>
+                            <p class="text-xs text-gray-400 mt-1">Maksimal 100MB, format: JPG, PNG, GIF</p>
                         </div>
                     </div>
                     <input type="file" id="foto-utama-input" name="foto_utama" accept="image/*" class="hidden">
@@ -180,7 +180,7 @@
                             <i class="fas fa-images text-3xl text-green-400 mb-3"></i>
                             <p class="text-base font-medium text-gray-700 mb-1">Klik untuk upload banyak foto</p>
                             <p class="text-xs text-gray-500">atau drag & drop file di sini</p>
-                            <p class="text-xs text-gray-400 mt-1">Bisa pilih banyak foto sekaligus - Maksimal 5MB per foto</p>
+                            <p class="text-xs text-gray-400 mt-1">Bisa pilih banyak foto sekaligus - Maksimal 100MB per foto</p>
                         </div>
                     </div>
                     <input type="file" id="foto-galeri-input" name="fotos_galeri[]" multiple accept="image/*" class="hidden">
@@ -207,10 +207,57 @@
     </form>
 </div>
 
+<!-- Modal Konfirmasi Hapus Foto -->
+<div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4" style="backdrop-filter: blur(4px); background-color: rgba(0, 0, 0, 0.4);">
+    <!-- Modal panel -->
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full transform transition-all">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Hapus Foto</h3>
+                <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="mb-5">
+                <p class="text-gray-700 leading-relaxed">
+                    Apakah Anda yakin ingin menghapus foto ini? Tindakan ini tidak dapat dibatalkan.
+                </p>
+            </div>
+
+            <!-- Input konfirmasi -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Ketik 'Delete' untuk konfirmasi
+                </label>
+                <input type="text" id="deleteConfirmInput" 
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" 
+                       placeholder="Delete">
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" 
+                        class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
+                    Batal
+                </button>
+                <button id="confirmDeleteBtn" onclick="confirmDelete()" disabled
+                        class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
-        // Validasi ukuran file (maksimal 5MB)
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
-        const MAX_FILE_SIZE_TEXT = '5MB';
+        // Validasi ukuran file (maksimal 100MB)
+        const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
+        const MAX_FILE_SIZE_TEXT = '100MB';
 
         function validateFileSize(file, inputElement) {
             if (file.size > MAX_FILE_SIZE) {
@@ -394,13 +441,43 @@
             }
         });
 
-        // Delete foto function
+        // Modal functions
+        let currentFotoId = null;
+
         function deleteFoto(fotoId) {
-            if (!confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
+            currentFotoId = fotoId;
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteConfirmInput').value = '';
+            document.getElementById('deleteConfirmInput').focus();
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            currentFotoId = null;
+            document.getElementById('deleteConfirmInput').value = '';
+        }
+
+        function confirmDelete() {
+            const confirmInput = document.getElementById('deleteConfirmInput').value;
+            
+            if (confirmInput.toLowerCase() !== 'delete') {
+                // Show error in input
+                const input = document.getElementById('deleteConfirmInput');
+                input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                setTimeout(() => {
+                    input.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                }, 2000);
                 return;
             }
 
-            fetch(`/admin/fotos/${fotoId}`, {
+            if (!currentFotoId) return;
+
+            // Disable button
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menghapus...';
+
+            fetch(`/admin/fotos/${currentFotoId}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -411,17 +488,64 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Foto berhasil dihapus!');
-                    location.reload();
+                    // Show success message
+                    showNotification('Foto berhasil dihapus!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 } else {
-                    alert('Gagal menghapus foto: ' + data.message);
+                    showNotification('Gagal menghapus foto: ' + data.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Hapus';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghapus foto');
+                showNotification('Terjadi kesalahan saat menghapus foto', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Hapus';
             });
         }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white font-medium`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-3"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+        // Enable delete button only when "Delete" is typed
+        document.getElementById('deleteConfirmInput').addEventListener('input', function(e) {
+            const btn = document.getElementById('confirmDeleteBtn');
+            if (e.target.value.toLowerCase() === 'delete') {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        });
 
         // Radio card selection
         document.querySelectorAll('.radio-card input[type="radio"]').forEach(radio => {

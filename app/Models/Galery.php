@@ -34,4 +34,9 @@ class Galery extends Model
     {
         return $this->hasMany(GalleryDownload::class, 'gallery_id');
     }
+
+    public function views()
+    {
+        return $this->hasMany(GalleryView::class, 'gallery_id');
+    }
 }

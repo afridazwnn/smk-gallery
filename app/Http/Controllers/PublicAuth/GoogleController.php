@@ -37,7 +37,9 @@ class GoogleController extends Controller
                 $user->save();
                 
                 Auth::guard('public')->login($user, true);
-                return redirect()->route('gallery')->with('success', 'Login berhasil!');
+                request()->session()->regenerate();
+                
+                return redirect()->intended(route('gallery'))->with('success', 'Login berhasil!');
             }
 
             // Check if user exists with this email
@@ -53,7 +55,9 @@ class GoogleController extends Controller
                 $user->save();
 
                 Auth::guard('public')->login($user, true);
-                return redirect()->route('gallery')->with('success', 'Akun Google berhasil ditautkan!');
+                request()->session()->regenerate();
+                
+                return redirect()->intended(route('gallery'))->with('success', 'Akun Google berhasil ditautkan!');
             }
 
             // Create new user with VERIFIED status
@@ -69,7 +73,9 @@ class GoogleController extends Controller
             ]);
 
             Auth::guard('public')->login($user, true);
-            return redirect()->route('gallery')->with('success', 'Akun berhasil dibuat!');
+            request()->session()->regenerate();
+            
+            return redirect()->intended(route('gallery'))->with('success', 'Akun berhasil dibuat!');
 
         } catch (\Exception $e) {
             return redirect()->route('gallery')->with('error', 'Terjadi kesalahan saat login dengan Google');

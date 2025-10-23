@@ -107,7 +107,7 @@
                         <div class="text-center py-6">
                             <i class="fas fa-image text-3xl text-blue-400 mb-3"></i>
                             <p class="text-base font-medium text-gray-700 mb-1">Klik untuk upload foto utama</p>
-                            <p class="text-xs text-gray-400 mt-1">Maksimal 5MB, format: JPG, PNG, GIF</p>
+                            <p class="text-xs text-gray-400 mt-1">Maksimal 100MB, format: JPG, PNG, GIF</p>
                         </div>
                     </div>
                     <input type="file" id="foto-utama-input" name="foto_utama" accept="image/*" class="hidden" required>
@@ -127,7 +127,7 @@
                             <i class="fas fa-images text-3xl text-green-400 mb-3"></i>
                             <p class="text-base font-medium text-gray-700 mb-1">Klik untuk upload banyak foto</p>
                             <p class="text-xs text-gray-500">atau drag & drop file di sini</p>
-                            <p class="text-xs text-gray-400 mt-1">Bisa pilih banyak foto sekaligus - Maksimal 5MB per foto</p>
+                            <p class="text-xs text-gray-400 mt-1">Bisa pilih banyak foto sekaligus - Maksimal 100MB per foto</p>
                         </div>
                     </div>
                     <input type="file" id="foto-galeri-input" name="fotos_galeri[]" multiple accept="image/*" class="hidden">
@@ -155,9 +155,9 @@
 </div>
 
     <script>
-        // Validasi ukuran file (maksimal 5MB)
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
-        const MAX_FILE_SIZE_TEXT = '5MB';
+        // Validasi ukuran file (maksimal 100MB)
+        const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
+        const MAX_FILE_SIZE_TEXT = '100MB';
 
         function validateFileSize(file, inputElement) {
             if (file.size > MAX_FILE_SIZE) {

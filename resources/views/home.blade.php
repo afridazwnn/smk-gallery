@@ -253,7 +253,7 @@
                     @if($beritaPosts->count() > 0)
                         @foreach($beritaPosts as $index => $post)
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center {{ $index > 0 ? 'mt-8' : '' }}">
-                                <div class="aspect-[4/3] rounded-2xl overflow-hidden">
+                                <div class="aspect-video rounded-2xl overflow-hidden">
                                     @if($post->galery->count() > 0 && $post->galery->first()->foto->count() > 0)
                                         <img src="{{ asset('storage/posts/' . $post->galery->first()->foto->first()->file) }}" 
                                              alt="{{ $post->judul }}" 
@@ -279,7 +279,7 @@
                         @endforeach
                     @else
                         <div class="text-center py-12">
-                            <div class="aspect-[4/3] bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl flex items-center justify-center">
+                            <div class="aspect-video bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl flex items-center justify-center">
                                 <div class="text-center">
                                     <p class="text-gray-500 text-lg mb-2">Belum ada kegiatan</p>
                                     <p class="text-gray-400 text-sm">Silakan tambahkan kegiatan melalui admin panel</p>
@@ -300,7 +300,7 @@
                     @if($kejuaraanPosts->count() > 0)
                         @foreach($kejuaraanPosts as $index => $post)
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center {{ $index > 0 ? 'mt-8' : '' }}">
-                                <div class="aspect-[4/3] rounded-2xl overflow-hidden">
+                                <div class="aspect-video rounded-2xl overflow-hidden">
                                     @if($post->galery->count() > 0 && $post->galery->first()->foto->count() > 0)
                                         <img src="{{ asset('storage/posts/' . $post->galery->first()->foto->first()->file) }}" 
                                              alt="{{ $post->judul }}" 
@@ -326,7 +326,7 @@
                         @endforeach
                     @else
                         <div class="text-center py-12">
-                            <div class="aspect-[4/3] bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl flex items-center justify-center">
+                            <div class="aspect-video bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl flex items-center justify-center">
                                 <div class="text-center">
                                     <p class="text-gray-500 text-lg mb-2">Belum ada kejuaraan</p>
                                     <p class="text-gray-400 text-sm">Silakan tambahkan kejuaraan melalui admin panel</p>
@@ -347,7 +347,7 @@
                     @if($eskulPosts->count() > 0)
                         @foreach($eskulPosts as $index => $post)
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center {{ $index > 0 ? 'mt-8' : '' }}">
-                                <div class="aspect-[4/3] rounded-2xl overflow-hidden">
+                                <div class="aspect-video rounded-2xl overflow-hidden">
                                     @if($post->galery->count() > 0 && $post->galery->first()->foto->count() > 0)
                                         <img src="{{ asset('storage/posts/' . $post->galery->first()->foto->first()->file) }}" 
                                              alt="{{ $post->judul }}" 
@@ -373,7 +373,7 @@
                         @endforeach
                     @else
                         <div class="text-center py-12">
-                            <div class="aspect-[4/3] bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl flex items-center justify-center">
+                            <div class="aspect-video bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl flex items-center justify-center">
                                 <div class="text-center">
                                     <p class="text-gray-500 text-lg mb-2">Belum ada ekstrakurikuler</p>
                                     <p class="text-gray-400 text-sm">Silakan tambahkan ekstrakurikuler melalui admin panel</p>
@@ -394,7 +394,7 @@
                     @if($agendaPosts->count() > 0)
                         @foreach($agendaPosts as $index => $post)
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center {{ $index > 0 ? 'mt-8' : '' }}">
-                                <div class="aspect-[4/3] rounded-2xl overflow-hidden">
+                                <div class="aspect-video rounded-2xl overflow-hidden">
                                     @if($post->galery->count() > 0 && $post->galery->first()->foto->count() > 0)
                                         <img src="{{ asset('storage/posts/' . $post->galery->first()->foto->first()->file) }}" 
                                              alt="{{ $post->judul }}" 
@@ -420,7 +420,7 @@
                         @endforeach
                     @else
                         <div class="text-center py-12">
-                            <div class="aspect-[4/3] bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
+                            <div class="aspect-video bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
                                 <div class="text-center">
                                     <p class="text-gray-500 text-lg mb-2">Belum ada agenda</p>
                                     <p class="text-gray-400 text-sm">Silakan tambahkan agenda melalui admin panel</p>
@@ -1648,9 +1648,9 @@
                     </div>
 
                     <!-- Content Row -->
-                    <div class="flex flex-row gap-4 items-start">
-                        <!-- Thumbnail Image -->
-                        <div class="w-32 h-40 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                    <div class="flex flex-row gap-6 items-start">
+                        <!-- Thumbnail Image - Ukuran diperbesar -->
+                        <div class="w-48 h-64 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden shadow-md">
                             <img id="modalImage" src="" alt="" class="w-full h-full object-cover">
                         </div>
                         
@@ -1658,65 +1658,61 @@
                         <div class="flex-1">
                             <!-- Description Section -->
                             <div class="mb-4">
-                                <h4 class="text-lg font-semibold mb-2">Deskripsi</h4>
+                                <h4 class="text-base font-semibold mb-2">Deskripsi</h4>
                                 <p id="modalDescription" class="text-gray-700 text-sm leading-relaxed"></p>
                             </div>
                             
                             <!-- Info Section -->
-                            <div class="space-y-2">
+                            <div class="space-y-3">
                             <!-- Tempat -->
-                            <div class="flex items-center space-x-2 text-sm">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-start space-x-2 text-sm">
+                                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
-                                <span class="text-gray-500">Tempat:</span>
-                                <span id="modalTempat" class="font-medium"></span>
+                                <div>
+                                    <span class="text-gray-500 block">Tempat:</span>
+                                    <span id="modalTempat" class="font-medium text-gray-900"></span>
+                                </div>
                             </div>
                             
                             <!-- Pembina -->
-                            <div class="flex items-center space-x-2 text-sm">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-start space-x-2 text-sm">
+                                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
-                                <span class="text-gray-500">Pembina:</span>
-                                <span id="modalPembina" class="font-medium"></span>
+                                <div>
+                                    <span class="text-gray-500 block">Pembina:</span>
+                                    <span id="modalPembina" class="font-medium text-gray-900"></span>
+                                </div>
                             </div>
                             
                             <!-- Schedule -->
-                            <div class="flex items-center space-x-2 text-sm">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-start space-x-2 text-sm">
+                                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <span class="text-gray-500">Jadwal:</span>
-                                <span id="modalSchedule" class="font-medium"></span>
+                                <div>
+                                    <span class="text-gray-500 block">Jadwal:</span>
+                                    <span id="modalSchedule" class="font-medium text-gray-900"></span>
+                                </div>
                             </div>
 
                             <!-- Social Media -->
-                            <div class="flex items-center space-x-4 pt-2">
+                            <div class="flex items-center space-x-4 pt-3">
                                 <div id="modalInstagram" class="flex items-center space-x-2 text-sm">
-                                    <svg class="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
                                     </svg>
-                                    <a id="modalInstagramLink" href="#" target="_blank" class="text-pink-600 hover:text-pink-800"></a>
+                                    <a id="modalInstagramLink" href="#" target="_blank" class="text-pink-600 hover:text-pink-800 font-medium"></a>
                                 </div>
                                 <div id="modalEmail" class="flex items-center space-x-2 text-sm">
-                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                     </svg>
-                                    <a id="modalEmailLink" href="#" class="text-blue-600 hover:text-blue-800"></a>
+                                    <a id="modalEmailLink" href="#" class="text-blue-600 hover:text-blue-800 font-medium"></a>
                                 </div>
                             </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Documentation Gallery -->
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <h4 class="text-base font-semibold mb-2">Dokumentasi Kegiatan</h4>
-                        <div id="documentationGallery">
-                            <div id="documentationTrack">
-                                <!-- Documentation photos will be added here by JavaScript -->
                             </div>
                         </div>
                     </div>
@@ -1734,12 +1730,10 @@
             const tempat = document.getElementById('modalTempat');
             const description = document.getElementById('modalDescription');
             const mainImage = document.getElementById('modalImage');
-            const thumbnailContainer = document.getElementById('thumbnailContainer');
             const instagramDiv = document.getElementById('modalInstagram');
             const emailDiv = document.getElementById('modalEmail');
             const instagramLink = document.getElementById('modalInstagramLink');
             const emailLink = document.getElementById('modalEmailLink');
-            const documentationTrack = document.getElementById('documentationTrack');
             
             // Set the main content
             title.textContent = ekstrakurikuler.nama;
@@ -1788,52 +1782,6 @@
             } else {
                 emailDiv.style.display = 'none';
             }
-            
-            // Thumbnails removed as requested
-            
-            // Clear and populate documentation gallery
-            documentationTrack.innerHTML = '';
-            
-            // Add documentation photos to the gallery with cloning for seamless loop
-            documentationTrack.innerHTML = '';
-            
-            // Create a fragment for better performance
-            const fragment = document.createDocumentFragment();
-            
-            // Add documentation photos (in real app, these would come from database)
-            const photos = [
-                ekstrakurikuler.foto,
-                ekstrakurikuler.foto, // Duplicate for demo
-                ekstrakurikuler.foto,
-                ekstrakurikuler.foto,
-                ekstrakurikuler.foto
-            ];
-            
-            // Create two sets of images for seamless looping
-            [1, 2].forEach(() => {
-                photos.forEach((photo, index) => {
-                    if (photo) {
-                        const docPhoto = document.createElement('div');
-                        docPhoto.className = 'documentation-item';
-                        docPhoto.innerHTML = `
-                            <img src="{{ asset('storage/ekstrakurikuler/') }}/${photo}" 
-                                 alt="Dokumentasi ${index + 1}">
-                        `;
-                        fragment.appendChild(docPhoto);
-                    }
-                });
-            });
-            
-            documentationTrack.appendChild(fragment);
-            
-            // Pause animation on hover
-            documentationTrack.addEventListener('mouseenter', () => {
-                documentationTrack.style.animationPlayState = 'paused';
-            });
-            
-            documentationTrack.addEventListener('mouseleave', () => {
-                documentationTrack.style.animationPlayState = 'running';
-            });
             
             // Show the modal
             modal.classList.remove('hidden');

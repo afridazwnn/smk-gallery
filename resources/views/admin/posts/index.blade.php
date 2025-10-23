@@ -205,7 +205,7 @@
                 <div class="mb-6">
                     <input type="text" 
                            id="deleteConfirmInput" 
-                           class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" 
+                           class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-all" 
                            placeholder="Ketik 'Delete' untuk konfirmasi"
                            autocomplete="off">
                     <div id="deleteError" class="text-red-500 text-xs mt-2 hidden">
@@ -360,7 +360,7 @@
                     if (deleteButton) {
                         if (this.value === 'Delete') {
                             deleteButton.disabled = false;
-                            deleteButton.className = 'flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all font-medium';
+                            deleteButton.className = 'flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all font-medium';
                         } else {
                             deleteButton.disabled = true;
                             deleteButton.className = 'flex-1 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl focus:outline-none transition-all font-medium disabled:cursor-not-allowed';
